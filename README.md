@@ -11,17 +11,27 @@ npm install --save custom-item-select
 ```
 
 ## Usage
-
 ```jsx
 import React, { Component } from 'react'
 
-import MyComponent from 'custom-item-select'
+import Select from 'custom-item-select'
 import 'custom-item-select/dist/index.css'
 
-class Example extends Component {
-  render() {
-    return <MyComponent />
-  }
+const items = [
+  { key: "one", component: <Item>One</Item> },
+  { key: "two", component: <Item>Two</Item> },
+  { key: "three", component: <Item>Three</Item> }
+]
+
+function() {
+  const [value, setValue] = React.useState()
+  return (
+    <Select 
+      items={items} 
+      onSelect={(key) => setValue(key)} 
+      placeholder="select one element..."
+    />
+  )
 }
 ```
 
