@@ -10,6 +10,10 @@
 npm install --save custom-item-select
 ```
 
+## Demo
+(https://ktomecki.github.io/custom-item-select/)
+
+
 ## Usage
 ```jsx
 import React, { Component } from 'react'
