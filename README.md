@@ -11,7 +11,7 @@ npm install --save custom-item-select
 ```
 
 ## Demo
-(https://ktomecki.github.io/custom-item-select/)
+[custom-item-select](https://ktomecki.github.io/custom-item-select/)
 
 
 ## Usage
