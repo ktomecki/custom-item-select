@@ -112,13 +112,54 @@ function DropdownButton({ onClick }) {
   )
 }
 
-export default function ({ onSelect, items = [], multiselect = false, placeholder, styles = defaultStyles() }) {
+function useWidth(optionsRef, userWidth) {
+  const [[width, isAuto], setWidth] = React.useReducer((prev, value) => {
+    if(value === 'auto') {
+      return [null, true]
+    }
+    if(Number.isInteger(value)) {
+      return [value, false]
+    }
+    return [null, false]
+  }, [50, false])
+
+  React.useEffect(() => {
+    setWidth(userWidth)
+  }, [userWidth])
+
+  React.useEffect(() => {
+    if(optionsRef.current == null)
+      return
+    if(!isAuto)
+      return
+
+    const elem = optionsRef.current
+
+    elem.style.visibility = 'hidden'
+    elem.style.display = 'block'
+    setTimeout(() => {
+      setWidth(elem.scrollWidth)
+      elem.style.display = 'none'
+      elem.style.visibility = 'visible'
+    })
+  }, [optionsRef.current])
+
+  return width
+}
+
+export default function ({ width, onSelect, items = [], multiselect = false, placeholder, styles = defaultStyles() }) {
   const [selected, setSelected] = React.useState([])
 
   const optionsRef = React.useRef()
   const containerRef = React.useRef()
   const timeoutBlurRef = React.useRef()
   const timeoutShowRef = React.useRef()
+
+  const computedWidth = useWidth(optionsRef, width)
+  const containerStyle = {
+    ...styles.customItemSelect,
+    ...(Number.isInteger(computedWidth) ? {width: multiselect ? computedWidth + 100 : computedWidth} : {})
+  }
 
   const [show, setShow] = React.useReducer((s, value) => {
 
@@ -198,13 +239,14 @@ export default function ({ onSelect, items = [], multiselect = false, placeholde
   return (
     <Context.Provider
       value={{
-        styles
+        styles,
+        computedWidth
       }}
     >
       <div
         ref={containerRef}
         tabIndex={0}
-        style={styles.customItemSelect}
+        style={containerStyle}
         onBlur={() => timeoutBlurRef.current = setTimeout(() => setShow(false), 100)}
         onFocus={() => clearTimeout(timeoutBlurRef.current)}
       >

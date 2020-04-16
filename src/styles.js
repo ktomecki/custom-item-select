@@ -23,13 +23,13 @@ export function defaultStyles(theme = defaultTheme()) {
         inputContainer: {
             "position": "relative",
             "display": "grid",
-            "gridTemplateColumns": "200px 30px",
+            "gridTemplateColumns": "auto 30px",
             "borderRadius": theme.borderRadiusValue,
             boxShadow: theme.standardBoxShadow
         },
         selectedItem: {
             "backgroundColor": theme.selectedItemBackground,
-            "width": "200px",
+            minWidth: 50,
             "minHeight": "30px",
             "display": "flex",
             "borderTop": theme.selectedItemBorder,
