@@ -1,71 +1,94 @@
 import React from 'react'
-import styles from './styles.scss'
+import { defaultStyles, defaultTheme } from './styles'
+import {DropdownIcon, useHover} from './utils'
 
-function DropdownIcon() {
-  return (
-    <svg x="0px" y="0px" width="10px" height="10px" viewBox="0 0 255 255" space="preserve">
-      <g>
-        <g id="arrow-drop-down">
-          <polygon points="0,63.75 127.5,191.25 255,63.75" />
-        </g>
-      </g>
-    </svg>
-  )
+const Context = React.createContext({ styles: {} })
+
+function useStyles() {
+  const { styles } = React.useContext(Context)
+  return styles
 }
 
 function Item({ element, onClick, isSelected }) {
+  const { item, selectedOption, itemHover } = useStyles()
+  const [ref, hovered] = useHover()
+
+  const currentStyle = {
+    ...item,
+    ...(isSelected ? selectedOption : {}),
+    ...(hovered ? itemHover : {})
+  }
+
   return (
-    <div onClick={(e) => onClick(e)} className={styles.item + (isSelected ? ` ${styles.selectedOption}` : '')}>
+    <div ref={ref} onClick={(e) => onClick(e)} style={currentStyle}>
       {element.component}
     </div>
   )
 }
 
-function EmptySelector({text}) {
+function EmptySelector({ text }) {
+  const { placeholder } = useStyles()
   return (
-    <div className={styles.selectedItem + " " + styles.placeholder}>
-      <div>
+    <div style={{ ...placeholder, display: 'flex' }}>
+      <div style={{ marginTop: 'auto', marginBottom: 'auto', marginLeft: 3 }}>
         {text}
       </div>
-      
     </div>
   )
 }
 
 function SelectedItem({ selected, placeholder }) {
-
+  const { selectedItem } = useStyles()
   if (selected == null || !Array.isArray(selected) || selected.length !== 1)
-    return <EmptySelector text={placeholder}/>
+    return <EmptySelector text={placeholder} />
 
   const component = selected[0].component
 
   return (
-    <div className={styles.selectedItem}>
-      {component}
+    <div style={selectedItem}>
+      <div style={{ marginTop: 'auto', marginBottom: 'auto' }}>
+        {component}
+      </div>
+    </div>
+  )
+}
+
+function ItemEraser({ onClick }) {
+  const { itemEraser, itemEraserHover } = useStyles()
+  const [ref, hovered] = useHover()
+
+  const currentStyle = {
+    ...itemEraser,
+    ...(hovered ? itemEraserHover : {})
+  }
+
+  return (
+    <div ref={ref} onClick={onClick} style={currentStyle}>
+      x
     </div>
   )
 }
 
 function ItemWrapper({ children, onErase }) {
+  const { itemWrapper, wrapperBox } = useStyles()
   return (
-    <div className={styles.itemWrapper}>
-      <div className={styles.wrapperBox}>
+    <div style={itemWrapper}>
+      <div style={wrapperBox}>
         {children}
       </div>
-      
-      <div onClick={onErase} className={styles.itemEraser}>
-        x
-      </div>
+
+      <ItemEraser onClick={onErase}/>
     </div>
   )
 }
 
 function SelectedItemsArray({ selected, onErase, placeholder }) {
+  const { selectedItem, multiselectedItems } = useStyles()
   if (selected == null || !Array.isArray(selected))
-    return <EmptySelector text={placeholder}/>
+    return <EmptySelector text={placeholder} />
 
   return (
-    <div className={styles.selectedItem + " " + styles.multiselectedItems}>
+    <div style={{ ...selectedItem, ...multiselectedItems }}>
       {selected.map(el => (
         <ItemWrapper onErase={() => onErase(el)}>{el.component}</ItemWrapper>
       ))}
@@ -73,7 +96,24 @@ function SelectedItemsArray({ selected, onErase, placeholder }) {
   )
 }
 
-export default function ({ onSelect, items = [], multiselect = false, placeholder }) {
+function DropdownButton({ onClick }) {
+  const [ref, hovered] = useHover()
+  const { dropdownButton, dropdownButtonHover } = useStyles()
+
+  const currentStyle = {
+    ...dropdownButton,
+    ...(hovered ? dropdownButtonHover : {})
+  }
+
+  return (
+    <button ref={ref} style={currentStyle} onClick={onClick}>
+      <DropdownIcon />
+    </button>
+  )
+}
+
+export default function ({ onSelect, items = [], multiselect = false, placeholder, styles = defaultStyles() }) {
+  const [selected, setSelected] = React.useState([])
 
   const optionsRef = React.useRef()
   const containerRef = React.useRef()
@@ -106,11 +146,10 @@ export default function ({ onSelect, items = [], multiselect = false, placeholde
       slideDown(optionsRef.current);
     else
       slideUp(optionsRef.current)
-    console.log(optionsRef)
     return value
   }, false)
 
-  const [selected, setSelected] = React.useState([])
+ 
 
   const onErase = (element) => {
     setSelected((prev) => {
@@ -123,8 +162,8 @@ export default function ({ onSelect, items = [], multiselect = false, placeholde
   }
 
   const selectedComponent = React.useMemo(() => {
-    return multiselect === true ? 
-      <SelectedItemsArray placeholder={placeholder} onErase={onErase} selected={selected} /> : 
+    return multiselect === true ?
+      <SelectedItemsArray placeholder={placeholder} onErase={onErase} selected={selected} /> :
       <SelectedItem placeholder={placeholder} selected={selected} />
   }, [selected, multiselect])
 
@@ -146,7 +185,7 @@ export default function ({ onSelect, items = [], multiselect = false, placeholde
   }, [selected, multiselect])
 
   const value = React.useMemo(() => {
-    if(multiselect === true) {
+    if (multiselect === true) {
       return selected.map(el => el.key)
     }
     return selected.length > 0 ? selected[0].key : null
@@ -157,26 +196,32 @@ export default function ({ onSelect, items = [], multiselect = false, placeholde
   }, [value])
 
   return (
-    <div
-      ref={containerRef}
-      tabIndex={0}
-      className={styles.customItemSelect}
-      onBlur={() => timeoutBlurRef.current = setTimeout(() => setShow(false), 100)}
-      onFocus={() => clearTimeout(timeoutBlurRef.current)}
+    <Context.Provider
+      value={{
+        styles
+      }}
     >
-      <div className={styles.inputContainer}>
-        {selectedComponent}
-        <button className={styles.dropdownButton} onClick={() => setShow(!show)}> <DropdownIcon /></button>
+      <div
+        ref={containerRef}
+        tabIndex={0}
+        style={styles.customItemSelect}
+        onBlur={() => timeoutBlurRef.current = setTimeout(() => setShow(false), 100)}
+        onFocus={() => clearTimeout(timeoutBlurRef.current)}
+      >
+        <div style={styles.inputContainer}>
+          {selectedComponent}
+          <DropdownButton onClick={() => setShow(!show)} />
+        </div>
+        <div ref={optionsRef} id="optionsContainer" style={styles.optionsContainer}>
+          {items.map(el => (
+            <Item isSelected={isSelected(el)} key={`item-${el.key}`} onClick={() => {
+              onItemClick(el)
+              if (!multiselect)
+                setShow(false)
+            }} element={el} />
+          ))}
+        </div>
       </div>
-      <div ref={optionsRef} id="optionsContainer" className={styles.optionsContainer}>
-        {items.map(el => (
-          <Item isSelected={isSelected(el)} key={`item-${el.key}`} onClick={() => {
-            onItemClick(el)
-            if (!multiselect)
-              setShow(false)
-          }} element={el} />
-        ))}
-      </div>
-    </div>
+    </Context.Provider>
   )
 }
