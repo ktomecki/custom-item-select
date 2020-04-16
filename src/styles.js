@@ -15,7 +15,7 @@ export function defaultTheme() {
 
 export function defaultStyles(theme = defaultTheme()) {
     return {
-        customItemSelect: {
+        container: {
             "position": "relative",
             "display": "inline-block",
             "borderRadius": theme.borderRadiusValue

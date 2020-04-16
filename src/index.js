@@ -2,6 +2,8 @@ import React from 'react'
 import { defaultStyles, defaultTheme } from './styles'
 import {DropdownIcon, useHover} from './utils'
 
+export { defaultStyles, defaultTheme }
+
 const Context = React.createContext({ styles: {} })
 
 function useStyles() {
@@ -27,9 +29,9 @@ function Item({ element, onClick, isSelected }) {
 }
 
 function EmptySelector({ text }) {
-  const { placeholder } = useStyles()
+  const { placeholder, selectedItem } = useStyles()
   return (
-    <div style={{ ...placeholder, display: 'flex' }}>
+    <div style={{ ...selectedItem, ...placeholder}}>
       <div style={{ marginTop: 'auto', marginBottom: 'auto', marginLeft: 3 }}>
         {text}
       </div>
@@ -84,7 +86,7 @@ function ItemWrapper({ children, onErase }) {
 
 function SelectedItemsArray({ selected, onErase, placeholder }) {
   const { selectedItem, multiselectedItems } = useStyles()
-  if (selected == null || !Array.isArray(selected))
+  if (selected == null || !Array.isArray(selected) || selected.length === 0)
     return <EmptySelector text={placeholder} />
 
   return (
@@ -147,7 +149,15 @@ function useWidth(optionsRef, userWidth) {
   return width
 }
 
-export default function ({ width, onSelect, items = [], multiselect = false, placeholder, styles = defaultStyles() }) {
+export default function ({ 
+    width, 
+    onSelect, 
+    items = [], 
+    multiselect = false, 
+    placeholder, 
+    styles = defaultStyles(),
+    animationTime = 0.2
+  }) {
   const [selected, setSelected] = React.useState([])
 
   const optionsRef = React.useRef()
@@ -157,14 +167,13 @@ export default function ({ width, onSelect, items = [], multiselect = false, pla
 
   const computedWidth = useWidth(optionsRef, width)
   const containerStyle = {
-    ...styles.customItemSelect,
+    ...styles.container,
     ...(Number.isInteger(computedWidth) ? {width: multiselect ? computedWidth + 100 : computedWidth} : {})
   }
 
   const [show, setShow] = React.useReducer((s, value) => {
 
     clearTimeout(timeoutShowRef.current)
-    const animationTime = 0.2;
     const slideDown = (elem) => {
       elem.style.display = 'block'
       elem.style.transition = `height, ${animationTime}s linear`

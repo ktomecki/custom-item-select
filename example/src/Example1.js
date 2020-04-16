@@ -36,17 +36,31 @@ export default function() {
         <br/>
         <br/>
         <Code>
-          {
-            `const [value, setValue] = React.useState();
-  const items = [
-    { key: "one", component: <Item>One</Item> },
-    //...
-    { key: "nine", component: <Item>Nine</Item> },
-  ];
+        {
+          `
+import React from 'react'
+import Select from 'custom-item-select'
+//...
+
+const items = [
+  { key: "Misou", component: <PersonBadge {...rand()}>Misou</PersonBadge> },
+  //...
+  { key: "Miko", component: <PersonBadge {...rand()}>Miko</PersonBadge> },
+]
+
+function() {
+  const [values, setValues] = React.useState()
   return (
-    <Select onSelect={key => setValue(key)} items={items} />
-  )`}
-        </Code>
+    <Select
+      items={items}
+      onSelect={(key) => setValue(key)}
+      placeholder="select one element..."
+    />
+  )
+}
+
+`}
+      </Code>
       </Example>
     )
   }

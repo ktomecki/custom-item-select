@@ -2,10 +2,10 @@ import React from 'react'
 import { Container } from 'react-bootstrap'
 import SingleSelect from './Example1'
 import Multiselect from './Example2'
+import Theming from './Example3'
 
 //TODO:
 // Props explanation,
-// Theming and Styling,
 // Compare behaviour to HTML select,
 // Descriptions and texts,
 // Different components in one select,
@@ -13,10 +13,12 @@ import Multiselect from './Example2'
 
 const App = () => {
   return (
-    <Container style={{ maxWidth: 600 }}>
+    <Container style={{ maxWidth: 800 }}>
       <SingleSelect />
       <br />
       <Multiselect />
+      <br/>
+      <Theming/>
     </Container>
   )
 }
