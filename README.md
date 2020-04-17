@@ -1,6 +1,6 @@
 # custom-item-select
 
-> Made with create-react-library
+The React component used to select options visualized by the HTML/React components. 
 
 [![NPM](https://img.shields.io/npm/v/custom-item-select.svg)](https://www.npmjs.com/package/custom-item-select) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
@@ -10,21 +10,20 @@
 npm install --save custom-item-select
 ```
 
+> No additional dependencies, React only!
+
 ## Demo
 [custom-item-select](https://ktomecki.github.io/custom-item-select/)
-
 
 ## Usage
 ```jsx
 import React, { Component } from 'react'
-
 import Select from 'custom-item-select'
-import 'custom-item-select/dist/index.css'
 
 const items = [
-  { key: "one", component: <Item>One</Item> },
-  { key: "two", component: <Item>Two</Item> },
-  { key: "three", component: <Item>Three</Item> }
+  { key: "one", component: <Item>Custom item component</Item> },
+  { key: "two", component: <Item>Custom item component 2</Item> },
+  { key: "three", component: <AnotherItem>Three</AnotherItem> }
 ]
 
 function() {
@@ -42,3 +41,5 @@ function() {
 ## License
 
 MIT © [ktomecki](https://github.com/ktomecki)
+
+> Made with create-react-library
