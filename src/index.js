@@ -155,8 +155,9 @@ export default function ({
     items = [], 
     multiselect = false, 
     placeholder, 
-    styles = defaultStyles(),
-    animationTime = 0.2
+    internalStyles = defaultStyles(),
+    animationTime = 0.2,
+    style = {}
   }) {
   const [selected, setSelected] = React.useState([])
 
@@ -167,8 +168,9 @@ export default function ({
 
   const computedWidth = useWidth(optionsRef, width)
   const containerStyle = {
-    ...styles.container,
-    ...(Number.isInteger(computedWidth) ? {width: multiselect ? computedWidth + 100 : computedWidth} : {})
+    ...internalStyles.container,
+    ...(Number.isInteger(computedWidth) ? {width: multiselect ? computedWidth + 100 : computedWidth} : {}),
+    ...style
   }
 
   const [show, setShow] = React.useReducer((s, value) => {
@@ -248,7 +250,7 @@ export default function ({
   return (
     <Context.Provider
       value={{
-        styles,
+        styles: internalStyles,
         computedWidth
       }}
     >
@@ -259,11 +261,11 @@ export default function ({
         onBlur={() => timeoutBlurRef.current = setTimeout(() => setShow(false), 100)}
         onFocus={() => clearTimeout(timeoutBlurRef.current)}
       >
-        <div style={styles.inputContainer}>
+        <div style={internalStyles.inputContainer}>
           {selectedComponent}
           <DropdownButton onClick={() => setShow(!show)} />
         </div>
-        <div ref={optionsRef} id="optionsContainer" style={styles.optionsContainer}>
+        <div ref={optionsRef} id="optionsContainer" style={internalStyles.optionsContainer}>
           {items.map(el => (
             <Item isSelected={isSelected(el)} key={`item-${el.key}`} onClick={() => {
               onItemClick(el)

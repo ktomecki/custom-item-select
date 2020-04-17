@@ -3,6 +3,7 @@ import { Container } from 'react-bootstrap'
 import SingleSelect from './Example1'
 import Multiselect from './Example2'
 import Theming from './Example3'
+import PropsExample from './PropsExample'
 
 //TODO:
 // Props explanation,
@@ -13,12 +14,16 @@ import Theming from './Example3'
 
 const App = () => {
   return (
-    <Container style={{ maxWidth: 800 }}>
+    <Container style={{ maxWidth: 1200 }}>
       <SingleSelect />
       <br />
       <Multiselect />
       <br/>
+      <PropsExample/>
+      <br/>
       <Theming/>
+      <br/>
+     
     </Container>
   )
 }

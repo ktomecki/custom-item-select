@@ -61,7 +61,9 @@ export function defaultStyles(theme = defaultTheme()) {
             "display": "inline-block",
             "paddingLeft": "2px",
             "paddingRight": "2px",
-            "cursor": "pointer"
+            "cursor": "pointer",
+            marginTop: 'auto',
+            marginBottom: 'auto'
         },
         itemEraserHover: {
             filter: 'invert(37%) sepia(99%) saturate(631%) hue-rotate(154deg) brightness(111%) contrast(102%)'
