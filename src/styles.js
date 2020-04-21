@@ -26,7 +26,7 @@ export function defaultStyles(theme = defaultTheme()) {
             "display": "grid",
             "gridTemplateColumns": "auto 30px",
             "borderRadius": theme.borderRadiusValue,
-            boxShadow: theme.standardBoxShadow
+            boxShadow: theme.standardBoxShadow,
         },
         selectedItem: {
             "backgroundColor": theme.selectedItemBackground,
@@ -37,7 +37,8 @@ export function defaultStyles(theme = defaultTheme()) {
             "borderBottom": theme.selectedItemBorder,
             "borderLeft": theme.selectedItemBorder,
             "borderRadius": `${theme.borderRadiusValue} 0 0 ${theme.borderRadiusValue}`,
-            "padding": "2px"
+            "padding": "2px",
+            
         },
         placeholder: {
             "fontSize": "0.8rem",
@@ -49,14 +50,15 @@ export function defaultStyles(theme = defaultTheme()) {
         itemWrapper: {
             "display": "grid",
             "gridTemplateColumns": "auto 1fr",
-            "borderRadius": "2px",
+            height: 'min-content',
+            margin: '2px',
             "backgroundColor": "rgba(0, 0, 0, 0.1)",
-            "padding": "1px",
-            "margin": "2px"
+            "borderRadius": "4px",
         },
         wrapperBox: {
             "display": "flex",
-            "alignItems": "center"
+            "alignItems": "center",
+            padding: 2,
         },
         itemEraser: {
             "display": "inline-block",
@@ -64,13 +66,15 @@ export function defaultStyles(theme = defaultTheme()) {
             "paddingRight": "2px",
             "cursor": "pointer",
             marginTop: 'auto',
-            marginBottom: 'auto'
+            marginBottom: 'auto',
+            fontSize: '12px',
         },
         itemEraserHover: {
             filter: 'invert(37%) sepia(99%) saturate(631%) hue-rotate(154deg) brightness(111%) contrast(102%)'
         },
         dropdownButton: {
-            "display": "inline-block",
+            "display": "flex",
+            justifyContent: 'center',
             "border": "none",
             "margin": "0px",
             "padding": "0px",
@@ -81,6 +85,9 @@ export function defaultStyles(theme = defaultTheme()) {
             "borderLeft": theme.borderBetween,
             "cursor": "pointer"
         },
+        dropdownIcon: {
+            margin: 'auto 0'
+        },
         dropdownButtonHover: {
             boxShadow: theme.buttonHoverShadow
         },
@@ -89,7 +96,7 @@ export function defaultStyles(theme = defaultTheme()) {
             "backgroundColor": "white",
             "display": "none",
             "height": "0px",
-            "maxHeight": "150px",
+            "maxHeight": "250px",
             "overflowY": "hidden",
             "width": "100%",
             "zIndex": "100",
@@ -100,15 +107,31 @@ export function defaultStyles(theme = defaultTheme()) {
             "padding": "2px",
             "cursor": "pointer",
             borderBottom: theme.optionsHr,
-            borderTop: theme.optionsHr
+            borderTop: theme.optionsHr,
+            position: 'relative'
         },
         itemHover: {
             filter: 'sepia(20%)',
             backgroundColor: 'rgba(0, 0, 0, 0.08)'
         },
         selectedOption: {
-            "filter": "brightness(130%)",
-            "backgroundColor": "rgba(0, 0, 0, 0.03)"
+            //"filter": "brightness(30%)",
+            backgroundColor: 'hsl(0deg, 0%, 60%)'
+        },
+        selectedOptionOverlay: {
+            position: "absolute", 
+            height: '100%', 
+            width: '100%', 
+            backgroundColor: 'rgba(22, 198, 12, 0.5)', 
+            top: 0, 
+            left: 0, 
+            display: 'flex', 
+            justifyContent: 'center'
+        },
+        selectedOptionIcon: {
+            paddingLeft: '80%', 
+            marginTop: 'auto', 
+            marginBottom: 'auto' 
         }
     }
 }

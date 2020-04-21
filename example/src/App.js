@@ -17,6 +17,12 @@ const App = () => {
   const [value, setValue] = React.useState("1")
   return (
     <Container style={{ maxWidth: 1200 }}>
+      <h1><b>custom-item-select</b> demo</h1>
+      <a target="_blank" href="https://github.com/ktomecki/custom-item-select">GitHub</a>
+      {" | "}
+      <a target="_blank" href="https://www.npmjs.com/package/custom-item-select" alt="NPM"><img src="https://img.shields.io/npm/v/custom-item-select.svg"/></a>
+      <br/>
+      <br/>
       <SingleSelect />
       <br />
       <Multiselect />
@@ -26,16 +32,7 @@ const App = () => {
       <PropsExample/>
       <br/>
       <Theming/>
-      <br/>
-      <div style={{marginBottom: 500}}></div>
-      <br/>
-      <select value={value}>
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4">4</option>
-      </select>
-     
+      <br/>     
     </Container>
   )
 }

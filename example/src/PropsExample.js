@@ -115,7 +115,18 @@ const styles = defaultStyles()
                             <br /><br/>
                             If <code>{'auto'}</code>, width is computed to contain all items in options
                             <br/><br/>
-                            Use numeric value to set width in main component style.
+                            Use numeric value to set width to main component style.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>height</td>
+                        <td>null</td>
+                        <td><code>{'null | numeric value'}</code></td>
+                        <td>
+                            Defines min height of component.<br/>
+                            If <code>null</code>, height is defined by internalStyles.
+                            <br /><br/>
+                            Use numeric value to set min height to container of selected options.
                         </td>
                     </tr>
                     <tr>

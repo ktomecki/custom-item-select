@@ -12,7 +12,7 @@ function useStyles() {
 }
 
 function Item({ element, onClick, isSelected }) {
-  const { item, selectedOption, itemHover } = useStyles()
+  const { item, selectedOption, itemHover, selectedOptionOverlay, selectedOptionIcon } = useStyles()
   const [ref, hovered] = useHover()
 
   const currentStyle = {
@@ -24,6 +24,11 @@ function Item({ element, onClick, isSelected }) {
   return (
     <div ref={ref} onClick={(e) => onClick(e)} style={currentStyle}>
       {element.component}
+      {isSelected && (
+        <div style={selectedOptionOverlay}>
+          <div style={selectedOptionIcon}>{hovered ? "✖" : "✅"}</div>
+        </div>
+      )}
     </div>
   )
 }
@@ -66,7 +71,7 @@ function ItemEraser({ onClick }) {
 
   return (
     <div ref={ref} onClick={onClick} style={currentStyle}>
-      x
+      ✖
     </div>
   )
 }
@@ -74,13 +79,16 @@ function ItemEraser({ onClick }) {
 function ItemWrapper({ children, onErase }) {
   const { itemWrapper, wrapperBox } = useStyles()
   return (
-    <div style={itemWrapper}>
-      <div style={wrapperBox}>
-        {children}
-      </div>
+    <div style={{margin: 'auto 0'}}>
+      <div style={itemWrapper}>
+        <div style={wrapperBox}>
+          {children}
+        </div>
 
-      <ItemEraser onClick={onErase} />
+        <ItemEraser onClick={onErase} />
+      </div>
     </div>
+
   )
 }
 
@@ -100,7 +108,7 @@ function SelectedItemsArray({ selected, onErase, placeholder }) {
 
 function DropdownButton({ onClick, rotate }) {
   const [ref, hovered] = useHover()
-  const { dropdownButton, dropdownButtonHover } = useStyles()
+  const { dropdownButton, dropdownButtonHover, dropdownIcon } = useStyles()
 
   const currentStyle = {
     ...dropdownButton,
@@ -109,7 +117,7 @@ function DropdownButton({ onClick, rotate }) {
 
   return (
     <button ref={ref} style={currentStyle} onClick={onClick}>
-      <DropdownIcon rotate={rotate} />
+      <DropdownIcon style={dropdownIcon} rotate={rotate} />
     </button>
   )
 }
@@ -187,7 +195,7 @@ function useSlide(optionsRef, animationTime) {
   return [show, setShow]
 }
 
-function useFlip(optionsRef, show, position='bottom', auto=true) {
+function useFlip(optionsRef, show, position = 'bottom', auto = true) {
 
   const flipTop = (elem) => {
     elem.style.transformOrigin = 'bottom'
@@ -202,25 +210,24 @@ function useFlip(optionsRef, show, position='bottom', auto=true) {
   }
 
   const [current, setCurrent] = React.useState(position)
-  React.useEffect(() => setCurrent(position) , [position])
-
+  React.useEffect(() => setCurrent(position), [position])
 
   const checkPosition = () => {
     if (optionsRef.current == null)
       return
 
-    if(show !== true)
+    if (show !== true)
       return
 
     const y = optionsRef.current.parentElement.getBoundingClientRect().top
-    const screenHeight = screen.height
+    const screenHeight = window.innerHeight
     const height = optionsRef.current.scrollHeight
 
-    if(y + height + 100 > screenHeight && y - height > 0) {
-      if(current != 'top')
+    if (y + height + 100 > screenHeight && y - height > 0) {
+      if (current != 'top')
         setCurrent('top')
-    } else if(y + height - 100 < screenHeight) {
-      if(current != 'bottom')
+    } else if (y + height - 100 < screenHeight) {
+      if (current != 'bottom')
         setCurrent('bottom')
     }
   }
@@ -245,7 +252,10 @@ function useFlip(optionsRef, show, position='bottom', auto=true) {
 
     checkPosition()
     document.addEventListener('scroll', checkPosition)
-  }, [optionsRef.current, auto, show])
+    return () => {
+      document.removeEventListener('scroll', checkPosition)
+    }
+  }, [optionsRef.current, auto, show, current])
 
 }
 
@@ -259,7 +269,7 @@ export default function ({
   internalStyles = defaultStyles(),
   animationTime = 0.2,
   style = {},
-  optionsPosition = 'auto'
+  height
 }) {
 
   const createValue = (selectedArray) => {
@@ -278,7 +288,6 @@ export default function ({
           const filtered = multiselect ?
             selectedKeys.map(key => items.find(i => i.key == key)).filter(el => el != null) :
             [items.find(i => i.key == selectedKeys)]
-          console.log(filtered)
           return { final: filtered, value: createValue(filtered) }
         }
         return prev
@@ -297,16 +306,8 @@ export default function ({
         return controlled ? prev : { final, value }
       }
 
-
       case 'select': {
-        const final = [action.element]
-        const value = createValue(final)
-        onSelect && onSelect(value)
-        return controlled ? prev : { final, value }
-      }
-
-      case 'multiselect': {
-        const final = [...prev.final, action.element]
+        const final = multiselect ? [...prev.final, action.element] : [action.element]
         const value = createValue(final)
         onSelect && onSelect(value)
         return controlled ? prev : { final, value }
@@ -325,7 +326,7 @@ export default function ({
 
   const [show, setShow] = useSlide(optionsRef, animationTime)
 
-  useFlip(optionsRef, show, optionsPosition)
+  useFlip(optionsRef, show)
   const computedWidth = useWidth(optionsRef, width)
   const containerStyle = {
     ...internalStyles.container,
@@ -333,7 +334,12 @@ export default function ({
     ...style
   }
 
-  
+  const inputConteinerStyles = {
+    ...internalStyles.inputContainer,
+    ...(height != null && Number.isInteger(height) ? { minHeight: `${height}px` } : {})
+  }
+
+
   const onErase = (element) => {
     dispatchSelected({ type: 'erase', key: element.key })
   }
@@ -348,19 +354,11 @@ export default function ({
     return selected.final.find(el => el.key == element.key) != null
   }, [selected.final])
 
-  const onItemClick = React.useMemo(() => {
-    if (multiselect === true) {
-      return (element, e) => {
-        if (isSelected(element))
-          return onErase(element)
-        dispatchSelected({ type: 'multiselect', element })
-      }
-    }
-    return (element, e) => {
-      dispatchSelected({ type: 'select', element })
-    }
+  const onItemClick = React.useCallback((element, e) => {
+    if (isSelected(element))
+      return onErase(element)
+    dispatchSelected({ type: 'select', element })
   }, [selected, multiselect])
-
 
   return (
     <Context.Provider
@@ -376,7 +374,7 @@ export default function ({
         onBlur={() => timeoutBlurRef.current = setTimeout(() => setShow(false), 100)}
         onFocus={() => clearTimeout(timeoutBlurRef.current)}
       >
-        <div style={internalStyles.inputContainer}>
+        <div style={inputConteinerStyles}>
           {selectedComponent}
           <DropdownButton onClick={() => setShow(!show)} rotate={show} />
         </div>
