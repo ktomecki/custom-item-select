@@ -21,11 +21,12 @@ const App = () => {
       <br />
       <Multiselect />
       <br/>
+      <Controlled/>
+      <br/>
       <PropsExample/>
       <br/>
       <Theming/>
       <br/>
-      <Controlled/>
       <div style={{marginBottom: 500}}></div>
       <br/>
       <select value={value}>

@@ -98,7 +98,7 @@ function SelectedItemsArray({ selected, onErase, placeholder }) {
   )
 }
 
-function DropdownButton({ onClick }) {
+function DropdownButton({ onClick, rotate }) {
   const [ref, hovered] = useHover()
   const { dropdownButton, dropdownButtonHover } = useStyles()
 
@@ -109,7 +109,7 @@ function DropdownButton({ onClick }) {
 
   return (
     <button ref={ref} style={currentStyle} onClick={onClick}>
-      <DropdownIcon />
+      <DropdownIcon rotate={rotate} />
     </button>
   )
 }
@@ -174,14 +174,79 @@ function useSlide(optionsRef, animationTime) {
   const [show, setShow] = React.useReducer((s, value) => {
     clearTimeout(timeoutShowRef.current)
 
-    if (value === true)
+    if (value === true) {
       slideDown(optionsRef.current);
-    else
+    }
+    else {
       slideUp(optionsRef.current)
+    }
+
     return value
   }, false)
 
   return [show, setShow]
+}
+
+function useFlip(optionsRef, show, position='bottom', auto=true) {
+
+  const flipTop = (elem) => {
+    elem.style.transformOrigin = 'bottom'
+    elem.style.top = 'unset'
+    elem.style.bottom = '100%'
+  }
+
+  const flipBottom = (elem) => {
+    elem.style.transform = ''
+    elem.style.bottom = 'unset'
+    elem.style.top = 'unset'
+  }
+
+  const [current, setCurrent] = React.useState(position)
+  React.useEffect(() => setCurrent(position) , [position])
+
+
+  const checkPosition = () => {
+    if (optionsRef.current == null)
+      return
+
+    if(show !== true)
+      return
+
+    const y = optionsRef.current.parentElement.getBoundingClientRect().top
+    const screenHeight = screen.height
+    const height = optionsRef.current.scrollHeight
+
+    if(y + height + 100 > screenHeight && y - height > 0) {
+      if(current != 'top')
+        setCurrent('top')
+    } else if(y + height - 100 < screenHeight) {
+      if(current != 'bottom')
+        setCurrent('bottom')
+    }
+  }
+
+  React.useEffect(() => {
+    if (optionsRef.current == null)
+      return
+    if (show !== true)
+      return
+
+    switch (current) {
+      case 'bottom': return flipBottom(optionsRef.current);
+      case 'top': return flipTop(optionsRef.current)
+    }
+  }, [optionsRef.current, show, current])
+
+  React.useEffect(() => {
+    if (optionsRef.current == null)
+      return
+    if (auto !== true)
+      return
+
+    checkPosition()
+    document.addEventListener('scroll', checkPosition)
+  }, [optionsRef.current, auto, show])
+
 }
 
 export default function ({
@@ -193,7 +258,8 @@ export default function ({
   placeholder,
   internalStyles = defaultStyles(),
   animationTime = 0.2,
-  style = {}
+  style = {},
+  optionsPosition = 'auto'
 }) {
 
   const createValue = (selectedArray) => {
@@ -207,9 +273,9 @@ export default function ({
 
   const [selected, dispatchSelected] = React.useReducer((prev, action) => {
     switch (action.type) {
-      case 'reset':{
+      case 'reset': {
         if (controlled) {
-          const filtered = multiselect ? 
+          const filtered = multiselect ?
             selectedKeys.map(key => items.find(i => i.key == key)).filter(el => el != null) :
             [items.find(i => i.key == selectedKeys)]
           console.log(filtered)
@@ -232,14 +298,14 @@ export default function ({
       }
 
 
-      case 'select':{
+      case 'select': {
         const final = [action.element]
         const value = createValue(final)
         onSelect && onSelect(value)
         return controlled ? prev : { final, value }
       }
 
-      case 'multiselect':{
+      case 'multiselect': {
         const final = [...prev.final, action.element]
         const value = createValue(final)
         onSelect && onSelect(value)
@@ -249,7 +315,7 @@ export default function ({
   }, { final: [], value: [] })
 
   React.useEffect(() => {
-    dispatchSelected({type: 'reset'})
+    dispatchSelected({ type: 'reset' })
   }, [selectedKeys])
 
 
@@ -257,15 +323,17 @@ export default function ({
   const containerRef = React.useRef()
   const timeoutBlurRef = React.useRef()
 
+  const [show, setShow] = useSlide(optionsRef, animationTime)
+
+  useFlip(optionsRef, show, optionsPosition)
   const computedWidth = useWidth(optionsRef, width)
   const containerStyle = {
     ...internalStyles.container,
-    ...(Number.isInteger(computedWidth) ? { width: multiselect ? computedWidth + 100 : computedWidth } : {}),
+    ...(Number.isInteger(computedWidth) ? { width: multiselect ? computedWidth + 100 : computedWidth + 100 } : {}),
     ...style
   }
 
-  const [show, setShow] = useSlide(optionsRef, animationTime)
-
+  
   const onErase = (element) => {
     dispatchSelected({ type: 'erase', key: element.key })
   }
@@ -310,7 +378,7 @@ export default function ({
       >
         <div style={internalStyles.inputContainer}>
           {selectedComponent}
-          <DropdownButton onClick={() => setShow(!show)} />
+          <DropdownButton onClick={() => setShow(!show)} rotate={show} />
         </div>
         <div ref={optionsRef} id="optionsContainer" style={internalStyles.optionsContainer}>
           {items.map(el => (

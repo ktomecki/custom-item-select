@@ -18,7 +18,8 @@ export function defaultStyles(theme = defaultTheme()) {
         container: {
             "position": "relative",
             "display": "inline-block",
-            "borderRadius": theme.borderRadiusValue
+            "borderRadius": theme.borderRadiusValue,
+            userSelect: 'none'
         },
         inputContainer: {
             "position": "relative",

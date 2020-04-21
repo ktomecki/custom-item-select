@@ -118,6 +118,20 @@ const styles = defaultStyles()
                             Use numeric value to set width in main component style.
                         </td>
                     </tr>
+                    <tr>
+                        <td>selectedKeys</td>
+                        <td>null</td>
+                        <td>
+                            <code>{`null`}</code><br/>
+                            <code>{`[array_with_keys]`}</code>  if multiselect<br/>
+                            <code>{`"string key"`}</code> if singleselect
+                        </td>
+                        <td>
+                            If not null - selected items are controlled by this prop.<br/>
+                            <br/>
+                            If <code>null</code>, selected items are stored inside Select component. You can still track changes by <code>onSelect</code> event prop.
+                        </td>
+                    </tr>
                 </tbody>
             </Table>
         </Example>
