@@ -1,6 +1,6 @@
 import React from 'react'
 import { defaultStyles, defaultTheme } from './styles'
-import {DropdownIcon, useHover} from './utils'
+import { DropdownIcon, useHover } from './utils'
 
 export { defaultStyles, defaultTheme }
 
@@ -31,7 +31,7 @@ function Item({ element, onClick, isSelected }) {
 function EmptySelector({ text }) {
   const { placeholder, selectedItem } = useStyles()
   return (
-    <div style={{ ...selectedItem, ...placeholder}}>
+    <div style={{ ...selectedItem, ...placeholder }}>
       <div style={{ marginTop: 'auto', marginBottom: 'auto', marginLeft: 3 }}>
         {text}
       </div>
@@ -79,7 +79,7 @@ function ItemWrapper({ children, onErase }) {
         {children}
       </div>
 
-      <ItemEraser onClick={onErase}/>
+      <ItemEraser onClick={onErase} />
     </div>
   )
 }
@@ -116,10 +116,10 @@ function DropdownButton({ onClick }) {
 
 function useWidth(optionsRef, userWidth) {
   const [[width, isAuto], setWidth] = React.useReducer((prev, value) => {
-    if(value === 'auto') {
+    if (value === 'auto') {
       return [null, true]
     }
-    if(Number.isInteger(value)) {
+    if (Number.isInteger(value)) {
       return [value, false]
     }
     return [null, false]
@@ -130,9 +130,9 @@ function useWidth(optionsRef, userWidth) {
   }, [userWidth])
 
   React.useEffect(() => {
-    if(optionsRef.current == null)
+    if (optionsRef.current == null)
       return
-    if(!isAuto)
+    if (!isAuto)
       return
 
     const elem = optionsRef.current
@@ -149,50 +149,30 @@ function useWidth(optionsRef, userWidth) {
   return width
 }
 
-export default function ({ 
-    width, 
-    onSelect, 
-    items = [], 
-    multiselect = false, 
-    placeholder, 
-    internalStyles = defaultStyles(),
-    animationTime = 0.2,
-    style = {}
-  }) {
-  const [selected, setSelected] = React.useState([])
+function useSlide(optionsRef, animationTime) {
 
-  const optionsRef = React.useRef()
-  const containerRef = React.useRef()
-  const timeoutBlurRef = React.useRef()
-  const timeoutShowRef = React.useRef()
-
-  const computedWidth = useWidth(optionsRef, width)
-  const containerStyle = {
-    ...internalStyles.container,
-    ...(Number.isInteger(computedWidth) ? {width: multiselect ? computedWidth + 100 : computedWidth} : {}),
-    ...style
+  const slideDown = (elem) => {
+    elem.style.display = 'block'
+    elem.style.transition = `height, ${animationTime}s linear`
+    elem.style.height = `${elem.scrollHeight}px`;
+    timeoutShowRef.current = setTimeout(() => {
+      elem.style["overflow-y"] = "auto";
+    }, animationTime * 1000.0)
   }
 
+  const slideUp = (elem) => {
+    elem.style["overflow-y"] = "hidden";
+    elem.style.transition = `height, ${animationTime}s linear`
+    elem.style.height = `0px`;
+    timeoutShowRef.current = setTimeout(() => {
+      elem.style.display = "none";
+    }, animationTime * 1000.0)
+  }
+
+  const timeoutShowRef = React.useRef()
+
   const [show, setShow] = React.useReducer((s, value) => {
-
     clearTimeout(timeoutShowRef.current)
-    const slideDown = (elem) => {
-      elem.style.display = 'block'
-      elem.style.transition = `height, ${animationTime}s linear`
-      elem.style.height = `${elem.scrollHeight}px`;
-      timeoutShowRef.current = setTimeout(() => {
-        elem.style["overflow-y"] = "auto";
-      }, animationTime * 1000.0)
-    }
-
-    const slideUp = (elem) => {
-      elem.style["overflow-y"] = "hidden";
-      elem.style.transition = `height, ${animationTime}s linear`
-      elem.style.height = `0px`;
-      timeoutShowRef.current = setTimeout(() => {
-        elem.style.display = "none";
-      }, animationTime * 1000.0)
-    }
 
     if (value === true)
       slideDown(optionsRef.current);
@@ -201,51 +181,118 @@ export default function ({
     return value
   }, false)
 
- 
+  return [show, setShow]
+}
+
+export default function ({
+  width,
+  onSelect,
+  selectedKeys,
+  items = [],
+  multiselect = false,
+  placeholder,
+  internalStyles = defaultStyles(),
+  animationTime = 0.2,
+  style = {}
+}) {
+
+  const createValue = (selectedArray) => {
+    if (multiselect === true) {
+      return selectedArray.map(el => el.key)
+    }
+    return selectedArray.length > 0 ? selectedArray[0].key : null
+  }
+
+  const controlled = (selectedKeys != null && (multiselect === true && Array.isArray(selectedKeys) || (multiselect === false && (typeof selectedKeys === 'string' || selectedKeys instanceof String))))
+
+  const [selected, dispatchSelected] = React.useReducer((prev, action) => {
+    switch (action.type) {
+      case 'reset':{
+        if (controlled) {
+          const filtered = multiselect ? 
+            selectedKeys.map(key => items.find(i => i.key == key)).filter(el => el != null) :
+            [items.find(i => i.key == selectedKeys)]
+          console.log(filtered)
+          return { final: filtered, value: createValue(filtered) }
+        }
+        return prev
+      }
+
+      case 'erase': {
+        const key = action.key
+        const index = prev.final.findIndex(el => el.key === key)
+        if (index == null)
+          return prev
+
+        const final = [...prev.final]
+        final.splice(index, 1)
+        const value = createValue(final)
+        onSelect && onSelect(value)
+        return controlled ? prev : { final, value }
+      }
+
+
+      case 'select':{
+        const final = [action.element]
+        const value = createValue(final)
+        onSelect && onSelect(value)
+        return controlled ? prev : { final, value }
+      }
+
+      case 'multiselect':{
+        const final = [...prev.final, action.element]
+        const value = createValue(final)
+        onSelect && onSelect(value)
+        return controlled ? prev : { final, value }
+      }
+    }
+  }, { final: [], value: [] })
+
+  React.useEffect(() => {
+    dispatchSelected({type: 'reset'})
+  }, [selectedKeys])
+
+
+  const optionsRef = React.useRef()
+  const containerRef = React.useRef()
+  const timeoutBlurRef = React.useRef()
+
+  const computedWidth = useWidth(optionsRef, width)
+  const containerStyle = {
+    ...internalStyles.container,
+    ...(Number.isInteger(computedWidth) ? { width: multiselect ? computedWidth + 100 : computedWidth } : {}),
+    ...style
+  }
+
+  const [show, setShow] = useSlide(optionsRef, animationTime)
 
   const onErase = (element) => {
-    setSelected((prev) => {
-      const index = selected.findIndex(el => el.key === element.key)
-      if (index == null)
-        return prev
-      prev.splice(index, 1)
-      return [...prev]
-    })
+    dispatchSelected({ type: 'erase', key: element.key })
   }
 
   const selectedComponent = React.useMemo(() => {
     return multiselect === true ?
-      <SelectedItemsArray placeholder={placeholder} onErase={onErase} selected={selected} /> :
-      <SelectedItem placeholder={placeholder} selected={selected} />
-  }, [selected, multiselect])
+      <SelectedItemsArray placeholder={placeholder} onErase={onErase} selected={selected.final} /> :
+      <SelectedItem placeholder={placeholder} selected={selected.final} />
+  }, [selected.final, multiselect])
 
   const isSelected = React.useCallback((element) => {
-    return selected.find(el => el.key == element.key) != null
-  }, [selected])
+    return selected.final.find(el => el.key == element.key) != null
+  }, [selected.final])
 
   const onItemClick = React.useMemo(() => {
     if (multiselect === true) {
       return (element, e) => {
         if (isSelected(element))
           return onErase(element)
-        setSelected(prev => [...prev, element])
+        dispatchSelected({ type: 'multiselect', element })
       }
     }
     return (element, e) => {
-      setSelected([element])
+      dispatchSelected({ type: 'select', element })
     }
   }, [selected, multiselect])
 
-  const value = React.useMemo(() => {
-    if (multiselect === true) {
-      return selected.map(el => el.key)
-    }
-    return selected.length > 0 ? selected[0].key : null
-  }, [selected])
-
-  React.useEffect(() => {
-    onSelect && onSelect(value)
-  }, [value])
 
   return (
     <Context.Provider
