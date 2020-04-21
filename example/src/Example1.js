@@ -32,6 +32,8 @@ export default function() {
           items={items}
           onSelect={(key) => setValue(key)}
           placeholder="select one element..."
+          width='auto'
+          height={40}
         />
         <br/>
         <br/>

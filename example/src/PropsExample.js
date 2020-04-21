@@ -115,7 +115,32 @@ const styles = defaultStyles()
                             <br /><br/>
                             If <code>{'auto'}</code>, width is computed to contain all items in options
                             <br/><br/>
-                            Use numeric value to set width in main component style.
+                            Use numeric value to set width to main component style.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>height</td>
+                        <td>null</td>
+                        <td><code>{'null | numeric value'}</code></td>
+                        <td>
+                            Defines min height of component.<br/>
+                            If <code>null</code>, height is defined by internalStyles.
+                            <br /><br/>
+                            Use numeric value to set min height to container of selected options.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>selectedKeys</td>
+                        <td>null</td>
+                        <td>
+                            <code>{`null`}</code><br/>
+                            <code>{`[array_with_keys]`}</code>  if multiselect<br/>
+                            <code>{`"string key"`}</code> if singleselect
+                        </td>
+                        <td>
+                            If not null - selected items are controlled by this prop.<br/>
+                            <br/>
+                            If <code>null</code>, selected items are stored inside Select component. You can still track changes by <code>onSelect</code> event prop.
                         </td>
                     </tr>
                 </tbody>

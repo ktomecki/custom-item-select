@@ -29,6 +29,7 @@ export default function () {
           onSelect={keys => setValues(keys)}
           items={items}
           width='auto'
+          height={80}
           placeholder="select multiple options"
         />
       </div>
