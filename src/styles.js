@@ -122,7 +122,7 @@ export function defaultStyles(theme = defaultTheme()) {
             position: "absolute", 
             height: '100%', 
             width: '100%', 
-            backgroundColor: 'rgba(22, 198, 12, 0.5)', 
+            //backgroundColor: 'rgba(22, 198, 12, 0.5)', 
             top: 0, 
             left: 0, 
             display: 'flex', 
