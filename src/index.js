@@ -6,6 +6,14 @@ export { defaultStyles, defaultTheme }
 
 const Context = React.createContext({ styles: {} })
 
+function Iks() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="11.351" height="11.351" viewBox="0 0 11.351 11.351">
+      <path id="Union_1" data-name="Union 1" d="M4.675,4.675,0,.127,4.675,4.675,9.224,0,4.675,4.675,9.351,9.224,4.675,4.675.127,9.351Z" transform="translate(1 1)" fill="none" stroke="#707070" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+    </svg>
+  )
+}
+
 function useStyles() {
   const { styles } = React.useContext(Context)
   return styles
@@ -26,7 +34,7 @@ function Item({ element, onClick, isSelected }) {
       {element.component}
       {isSelected && (
         <div style={selectedOptionOverlay}>
-          <div style={selectedOptionIcon}>{hovered ? "✖" : "✅"}</div>
+          <div style={selectedOptionIcon}>{hovered ? <Iks/> : "✅"}</div>
         </div>
       )}
     </div>
@@ -71,7 +79,7 @@ function ItemEraser({ onClick }) {
 
   return (
     <div ref={ref} onClick={onClick} style={currentStyle}>
-      ✖
+      <Iks/>
     </div>
   )
 }
