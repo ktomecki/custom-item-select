@@ -8,7 +8,7 @@ export function defaultTheme() {
         borderBetween: '1px solid rgba(0, 0, 0, 0.1)',
         focusColor: 'rgba(49, 67, 230, 0.5)',
         optionsHr: '1px solid rgba(0, 0, 0, 0.05)',
-        standardBoxShadow: '0px 0px 5px 0px rgba(0, 0, 0, 0.2)',
+        standardBoxShadow: '0px 2px 5px 0px rgba(0, 0, 0, 0.05)',
         buttonHoverShadow: 'inset 0px 0px 5px 0px rgba(0, 0, 0, 0.2)'
     }
 }
@@ -68,6 +68,7 @@ export function defaultStyles(theme = defaultTheme()) {
             marginTop: 'auto',
             marginBottom: 'auto',
             fontSize: '12px',
+            transform: 'translateY(1px)'
         },
         itemEraserHover: {
             filter: 'invert(37%) sepia(99%) saturate(631%) hue-rotate(154deg) brightness(111%) contrast(102%)'
@@ -92,6 +93,7 @@ export function defaultStyles(theme = defaultTheme()) {
             boxShadow: theme.buttonHoverShadow
         },
         optionsContainer: {
+            border: theme.selectedItemBorder,
             "position": "absolute",
             "backgroundColor": "white",
             "display": "none",
@@ -116,7 +118,7 @@ export function defaultStyles(theme = defaultTheme()) {
         },
         selectedOption: {
             //"filter": "brightness(30%)",
-            backgroundColor: 'hsl(0deg, 0%, 60%)'
+            //backgroundColor: 'hsl(0deg, 0%, 60%)'
         },
         selectedOptionOverlay: {
             position: "absolute", 
