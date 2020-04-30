@@ -1,6 +1,7 @@
 import React from 'react'
 import { defaultStyles, defaultTheme } from './styles'
-import { DropdownIcon, useHover } from './utils'
+import { DropdownIcon } from './utils'
+import { useHover, useWidth, useSlide, useFlip } from 'react-my-hooks'
 
 export { defaultStyles, defaultTheme }
 
@@ -8,8 +9,8 @@ const Context = React.createContext({ styles: {} })
 
 function Iks() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" style={{verticalAlign: 'inherit'}} width="11.351" height="11.351" viewBox="0 0 11.351 11.351">
-      <path id="Union_1" data-name="Union 1" d="M4.675,4.675,0,.127,4.675,4.675,9.224,0,4.675,4.675,9.351,9.224,4.675,4.675.127,9.351Z" transform="translate(1 1)" fill="none" stroke="#707070" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+    <svg xmlns="http://www.w3.org/2000/svg" style={{ verticalAlign: 'inherit' }} width="11.351" height="11.351" viewBox="0 0 11.351 11.351">
+      <path id="Union_1" data-name="Union 1" d="M4.675,4.675,0,.127,4.675,4.675,9.224,0,4.675,4.675,9.351,9.224,4.675,4.675.127,9.351Z" transform="translate(1 1)" fill="none" stroke="#707070" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
     </svg>
   )
 }
@@ -21,7 +22,8 @@ function useStyles() {
 
 function Item({ element, onClick, isSelected }) {
   const { item, selectedOption, itemHover, selectedOptionOverlay, selectedOptionIcon } = useStyles()
-  const [ref, hovered] = useHover()
+  const ref = React.useRef()
+  const hovered = useHover(ref)
 
   const currentStyle = {
     ...item,
@@ -70,7 +72,8 @@ function SelectedItem({ selected, placeholder }) {
 
 function ItemEraser({ onClick }) {
   const { itemEraser, itemEraserHover } = useStyles()
-  const [ref, hovered] = useHover()
+  const ref = React.useRef()
+  const hovered = useHover(ref)
 
   const currentStyle = {
     ...itemEraser,
@@ -79,7 +82,7 @@ function ItemEraser({ onClick }) {
 
   return (
     <div ref={ref} onClick={onClick} style={currentStyle}>
-      <Iks/>
+      <Iks />
     </div>
   )
 }
@@ -87,7 +90,7 @@ function ItemEraser({ onClick }) {
 function ItemWrapper({ children, onErase }) {
   const { itemWrapper, wrapperBox } = useStyles()
   return (
-    <div style={{margin: 'auto 0'}}>
+    <div style={{ margin: 'auto 0' }}>
       <div style={itemWrapper}>
         <div style={wrapperBox}>
           {children}
@@ -115,7 +118,8 @@ function SelectedItemsArray({ selected, onErase, placeholder }) {
 }
 
 function DropdownButton({ onClick, rotate }) {
-  const [ref, hovered] = useHover()
+  const ref = React.useRef()
+  const hovered = useHover(ref)
   const { dropdownButton, dropdownButtonHover, dropdownIcon } = useStyles()
 
   const currentStyle = {
@@ -128,143 +132,6 @@ function DropdownButton({ onClick, rotate }) {
       <DropdownIcon style={dropdownIcon} rotate={rotate} />
     </button>
   )
-}
-
-function useWidth(optionsRef, userWidth) {
-  const [[width, isAuto], setWidth] = React.useReducer((prev, value) => {
-    if (value === 'auto') {
-      return [null, true]
-    }
-    if (Number.isInteger(value)) {
-      return [value, false]
-    }
-    return [null, false]
-  }, [50, false])
-
-  React.useEffect(() => {
-    setWidth(userWidth)
-  }, [userWidth])
-
-  React.useEffect(() => {
-    if (optionsRef.current == null)
-      return
-    if (!isAuto)
-      return
-
-    const elem = optionsRef.current
-
-    elem.style.visibility = 'hidden'
-    elem.style.display = 'block'
-    setTimeout(() => {
-      setWidth(elem.scrollWidth)
-      elem.style.display = 'none'
-      elem.style.visibility = 'visible'
-    })
-  }, [optionsRef.current])
-
-  return width
-}
-
-function useSlide(optionsRef, animationTime) {
-
-  const slideDown = (elem) => {
-    elem.style.display = 'block'
-    elem.style.transition = `height, ${animationTime}s linear`
-    elem.style.height = `${elem.scrollHeight}px`;
-    timeoutShowRef.current = setTimeout(() => {
-      elem.style["overflow-y"] = "auto";
-    }, animationTime * 1000.0)
-  }
-
-  const slideUp = (elem) => {
-    elem.style["overflow-y"] = "hidden";
-    elem.style.transition = `height, ${animationTime}s linear`
-    elem.style.height = `0px`;
-    timeoutShowRef.current = setTimeout(() => {
-      elem.style.display = "none";
-    }, animationTime * 1000.0)
-  }
-
-  const timeoutShowRef = React.useRef()
-
-  const [show, setShow] = React.useReducer((s, value) => {
-    clearTimeout(timeoutShowRef.current)
-
-    if (value === true) {
-      slideDown(optionsRef.current);
-    }
-    else {
-      slideUp(optionsRef.current)
-    }
-
-    return value
-  }, false)
-
-  return [show, setShow]
-}
-
-function useFlip(optionsRef, show, position = 'bottom', auto = true) {
-
-  const flipTop = (elem) => {
-    elem.style.transformOrigin = 'bottom'
-    elem.style.top = 'unset'
-    elem.style.bottom = '100%'
-  }
-
-  const flipBottom = (elem) => {
-    elem.style.transform = ''
-    elem.style.bottom = 'unset'
-    elem.style.top = 'unset'
-  }
-
-  const [current, setCurrent] = React.useState(position)
-  React.useEffect(() => setCurrent(position), [position])
-
-  const checkPosition = () => {
-    if (optionsRef.current == null)
-      return
-
-    if (show !== true)
-      return
-
-    const y = optionsRef.current.parentElement.getBoundingClientRect().top
-    const screenHeight = window.innerHeight
-    const height = optionsRef.current.scrollHeight
-
-    if (y + height + 100 > screenHeight && y - height > 0) {
-      if (current != 'top')
-        setCurrent('top')
-    } else if (y + height - 100 < screenHeight) {
-      if (current != 'bottom')
-        setCurrent('bottom')
-    }
-  }
-
-  React.useEffect(() => {
-    if (optionsRef.current == null)
-      return
-    if (show !== true)
-      return
-
-    switch (current) {
-      case 'bottom': return flipBottom(optionsRef.current);
-      case 'top': return flipTop(optionsRef.current)
-    }
-  }, [optionsRef.current, show, current])
-
-  React.useEffect(() => {
-    if (optionsRef.current == null)
-      return
-    if (auto !== true)
-      return
-
-    checkPosition()
-    document.addEventListener('scroll', checkPosition)
-    return () => {
-      document.removeEventListener('scroll', checkPosition)
-    }
-  }, [optionsRef.current, auto, show, current])
-
 }
 
 export default function ({
@@ -332,7 +199,8 @@ export default function ({
   const containerRef = React.useRef()
   const timeoutBlurRef = React.useRef()
 
-  const [show, setShow] = useSlide(optionsRef, animationTime)
+  const [show, setShow, _, setOptionsRef] = useSlide(animationTime, false)
+  React.useEffect(() => setOptionsRef(optionsRef.current), [optionsRef.current])
 
   useFlip(optionsRef, show)
   const computedWidth = useWidth(optionsRef, width)
